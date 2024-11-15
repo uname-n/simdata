@@ -1,0 +1,7 @@
+dist/
+.venv
+__pycache__
+main.py
+create.py
+*.json
+*.csv
