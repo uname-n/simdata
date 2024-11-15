@@ -29,8 +29,8 @@ print(s.simulate())
 ## Pydantic
 Built with pydantic, easily load and dump sims.
 ```python
-s = s.model_dump_json(indent=4)
-s = simd.model_validate_json(model)
+model = s.model_dump_json(indent=4)
+model = simd.model_validate_json(model)
 
-s.simulate()
+model.simulate()
 ```
