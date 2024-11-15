@@ -33,8 +33,10 @@ class simd (BaseModel):
                 if func_class: 
                     setattr(self, field, func_class(**value))
 
-    def simulate(self):
-        return { 
+    def simulate(self, n:int=1):
+        sim_data = [{ 
             field: getattr(self, field).simulate()
             for field in sorted(self.model_fields_set)
-        }
+        } for _ in range(n)]
+        if n == 1: return sim_data[0]
+        else: return sim_data
