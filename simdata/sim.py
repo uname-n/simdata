@@ -21,15 +21,19 @@ Int = int
 Float = float
 
 from pydantic import BaseModel
+from collections import Counter
 from random import choices as r_choices, seed as r_seed
 from numpy.random import normal as r_normal, seed as n_seed
+from numpy import std
 
-def seed(seed:int):
+def seed(seed:Int):
     n_seed(seed); r_seed(seed)
     return seed
 
 class simd_func (BaseModel):
     def simulate(self):
+        raise NotImplementedError()
+    def create(self):
         raise NotImplementedError()
 
 class float (simd_func):
@@ -39,6 +43,18 @@ class float (simd_func):
     min:Float
     max:Float
     precision:Optional[Int]=3
+
+    @classmethod
+    def create(cls, values:list[Float], **kwargs):
+        _sum = sum(values)
+        _avg = _sum / len(values)
+        return cls(
+            mean=_avg, 
+            std=std(values), 
+            min=min(values), 
+            max=max(values),
+            **kwargs
+        )
 
     def simulate(self):
         value = r_normal(self.mean, self.std)
@@ -50,9 +66,9 @@ class int (float, simd_func):
     func:Literal['int']="int"
 
     @classmethod
-    def create(cls, values:list[int]):
-        f = super().create(values=values)
-        return cls(mean=f.mean, std=f.std, min=f.min, max=f.max)
+    def create(cls, values:list[Int], **kwargs):
+        f = super().create(values=values, **kwargs)
+        return cls(mean=f.mean, std=f.std, min=f.min, max=f.max, precision=f.precision)
 
     def simulate(self):
         return Int(super().simulate())
@@ -63,7 +79,12 @@ class choice (simd_func):
     weights:list[Int|Float]
     n:Optional[Int]=1
 
-    def simulate(self):
+    @classmethod
+    def create(cls, values:list[str], **kwargs):
+        value_counts = Counter(values)
+        return cls(choices=values, weights=value_counts.values(), **kwargs)
+
+    def simulate(self, n:Int=None):
         choice = r_choices(self.choices, weights=self.weights, k=self.n)
         if self.n == 1: return choice[0]
         return choice
@@ -71,6 +92,10 @@ class choice (simd_func):
 class literal (simd_func):
     func:Literal["literal"]="literal"
     value:Any
+
+    @classmethod
+    def create(cls, value:str):
+        return cls(value=value)
 
     def simulate(self):
         return self.value

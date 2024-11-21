@@ -24,6 +24,10 @@ s = simd(
 
 print(s.simulate())
 # {'a': 59, 'b': 0.46, 'c': 86, 'd': 'A', 'e': 'edward'}
+
+print(sim.int.create(values=[1, 2, 2, 3, 3, 3, 4, 4, 4, 4])) 
+# func='int' mean=3.0 std=1.0 min=1.0 max=4.0 precision=3
+
 ```
 
 ## Pydantic
