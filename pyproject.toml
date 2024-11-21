@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simdata"
-version = "0.0.4"
+version = "0.0.5"
 description = ""
 authors = ["dm <git@defend.sh>"]
 packages = [{include = "simdata"}]

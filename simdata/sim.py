@@ -82,7 +82,7 @@ class choice (simd_func):
     @classmethod
     def create(cls, values:list[str], **kwargs):
         value_counts = Counter(values)
-        return cls(choices=values, weights=value_counts.values(), **kwargs)
+        return cls(choices=value_counts.keys(), weights=value_counts.values(), **kwargs)
 
     def simulate(self, n:Int=None):
         choice = r_choices(self.choices, weights=self.weights, k=self.n)
