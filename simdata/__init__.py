@@ -17,8 +17,9 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from pydantic import BaseModel, ConfigDict
+from polars import DataFrame
 
-from .sim import simd_func
+from .sim import simd_func, int as sim_int, float as sim_float, choice as sim_choice, literal as sim_literal
 
 class simd (BaseModel):
     model_config = ConfigDict(extra="allow")
@@ -40,3 +41,24 @@ class simd (BaseModel):
         } for _ in range(n)]
         if n == 1: return sim_data[0]
         else: return sim_data
+
+def build(data: DataFrame):
+    sim_fields = {}
+    for col in data.columns:
+        values = data[col].to_list()
+        dtype = data[col].dtype
+        dtype_str = str(dtype)
+        if dtype_str.startswith("Int"):
+            sim_fields[col] = sim_int.create(values=values)
+        elif dtype_str.startswith("Float"):
+            sim_fields[col] = sim_float.create(values=values)
+        elif dtype_str == "Utf8":
+            sim_fields[col] = sim_choice.create(values=values)
+        elif dtype_str == "Boolean":
+            sim_fields[col] = sim_choice.create(values=[str(v) for v in values])
+        else:
+            if all(v == values[0] for v in values):
+                sim_fields[col] = sim_literal.create(value=values[0])
+            else:
+                sim_fields[col] = sim_choice.create(values=[str(v) for v in values])
+    return simd(**sim_fields)
